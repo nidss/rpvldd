@@ -177,6 +177,30 @@ input[type="text"]:focus, select:focus {
 .status.error { background: rgba(244, 113, 116, 0.12); border: 1px solid rgba(244, 113, 116, 0.35); color: #ffb3b5; }
 .status.success { background: rgba(123, 216, 143, 0.12); border: 1px solid rgba(123, 216, 143, 0.3); }
 
+.preview {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+.preview summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  user-select: none;
+}
+.preview summary span { color: var(--text); font-weight: 600; }
+.preview-scroll { overflow-x: auto; margin-top: 12px; }
+.preview table { border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+.preview th, .preview td {
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  text-align: left;
+}
+.preview th { background: var(--panel-2); color: var(--text); position: sticky; top: 0; }
+.preview td { color: var(--muted); }
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));

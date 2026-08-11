@@ -88,20 +88,57 @@ const Sheets = (() => {
     const table = payload.table;
     if (!table || !table.cols) throw new Error('ไม่พบตารางข้อมูลใน Tab นี้');
 
-    // สร้างชื่อคอลัมน์ (ใช้ label ถ้ามี ไม่งั้นใช้ตัวอักษร A, B, C)
-    const columns = table.cols.map((c, i) => ({
-      id: c.id,
-      label: (c.label && c.label.trim()) || String.fromCharCode(65 + i),
-      type: c.type || 'string',
-    }));
+    const rawCols = table.cols;
+    const rawRows = table.rows || [];
 
-    const rows = (table.rows || []).map((r) => {
-      const obj = {};
-      columns.forEach((col, i) => {
-        obj[col.label] = parseCellValue(r.c[i], col.type);
-      });
-      return obj;
+    // ค่าดิบของทุก cell (ก่อนสร้างเป็น object) เพื่อใช้ตรวจคอลัมน์/แถวว่าง
+    const matrix = rawRows.map((r) =>
+      rawCols.map((c, i) => parseCellValue(r.c[i], c.type))
+    );
+
+    const isEmpty = (v) => v === null || v === undefined || v === '';
+
+    // 1) ตัดคอลัมน์ที่ไม่มีข้อมูลเลย (เช่น K, L, M ที่ว่างทั้งคอลัมน์)
+    const keepCol = rawCols.map((c, i) => {
+      const hasHeader = c.label && c.label.trim();
+      const hasData = matrix.some((row) => !isEmpty(row[i]));
+      return hasHeader || hasData;
     });
+
+    // สร้างชื่อคอลัมน์ (ใช้ label ถ้ามี ไม่งั้นใช้ตัวอักษร A, B, C)
+    const columns = rawCols
+      .map((c, i) => ({
+        idx: i,
+        id: c.id,
+        label: (c.label && c.label.trim()) || String.fromCharCode(65 + (i % 26)),
+        type: c.type || 'string',
+      }))
+      .filter((_, i) => keepCol[i]);
+
+    // กันชื่อคอลัมน์ซ้ำ (ไม่งั้น object key ทับกัน ข้อมูลหาย)
+    const seen = {};
+    columns.forEach((col) => {
+      if (seen[col.label] !== undefined) {
+        seen[col.label] += 1;
+        col.label = `${col.label} (${seen[col.label]})`;
+      } else {
+        seen[col.label] = 0;
+      }
+    });
+
+    // 2) สร้างแถว โดยข้ามแถวที่ว่างทั้งแถว
+    const rows = [];
+    matrix.forEach((row) => {
+      if (columns.every((col) => isEmpty(row[col.idx]))) return; // แถวว่าง
+      const obj = {};
+      columns.forEach((col) => {
+        obj[col.label] = row[col.idx];
+      });
+      rows.push(obj);
+    });
+
+    // ตัด field idx ที่ใช้ภายในออก
+    columns.forEach((c) => delete c.idx);
 
     return { columns, rows, sheetId: id };
   }

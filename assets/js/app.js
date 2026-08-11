@@ -29,6 +29,9 @@
   const cards = el('cards');
   const emptyState = el('emptyState');
   const dashMeta = el('dashMeta');
+  const previewBox = el('previewBox');
+  const previewMeta = el('previewMeta');
+  const previewTable = el('previewTable');
 
   let lastReco = null;
 
@@ -128,6 +131,25 @@
 
     chartPanel.hidden = false;
     dashMeta.textContent = `แหล่งข้อมูล: ${currentData.rows.length} แถว · Tab: ${tabName.value.trim() || 'tab แรก'}`;
+    renderPreview();
+  }
+
+  function renderPreview() {
+    const cols = currentData.columns;
+    const rows = currentData.rows;
+    previewMeta.textContent = `${rows.length} แถว × ${cols.length} คอลัมน์ · Tab: ${tabName.value.trim() || 'tab แรก'}`;
+
+    const head = '<tr>' + cols.map((c) => `<th>${escapeHtml(c.label)}</th>`).join('') + '</tr>';
+    const body = rows.slice(0, 5).map((r) =>
+      '<tr>' + cols.map((c) => `<td>${escapeHtml(formatLabel(r[c.label]))}</td>`).join('') + '</tr>'
+    ).join('');
+    previewTable.innerHTML = head + body;
+    previewBox.hidden = false;
+  }
+
+  function escapeHtml(s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function applyReco() {
