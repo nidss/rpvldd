@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheet Dashboard — สร้าง Dashboard จาก Google Sheet</title>
+  <meta name="description" content="สร้าง Dashboard report จากข้อมูล Google Sheet พร้อมระบบแนะนำ chart ที่เหมาะสม" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar: data source & configuration -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">📊</span>
+        <div>
+          <h1>Sheet Dashboard</h1>
+          <p>Google Sheet → Chart อัตโนมัติ</p>
+        </div>
+      </div>
+
+      <section class="panel">
+        <h2>1. แหล่งข้อมูล</h2>
+        <label class="field">
+          <span>ลิงก์ หรือ ID ของ Google Sheet</span>
+          <input id="sheetUrl" type="text" placeholder="วางลิงก์ Google Sheet ที่นี่..." autocomplete="off" />
+        </label>
+        <p class="hint">
+          Sheet ต้องตั้งค่าแชร์เป็น <strong>"ทุกคนที่มีลิงก์"</strong> (Anyone with the link)
+          จึงจะดึงข้อมูลได้
+        </p>
+        <label class="field">
+          <span>ชื่อ Tab / ชีตย่อย <small>(เว้นว่าง = tab แรก)</small></span>
+          <input id="tabName" type="text" list="tabHistory" placeholder="เช่น Sheet1, ยอดขาย, Data..." autocomplete="off" />
+          <datalist id="tabHistory"></datalist>
+        </label>
+        <button id="fetchDataBtn" class="btn btn-primary">ดึงข้อมูล</button>
+      </section>
+
+      <section class="panel" id="chartPanel" hidden>
+        <h2>3. ตั้งค่ากราฟ</h2>
+
+        <div class="reco" id="recoBox" hidden>
+          <span class="reco-label">💡 แนะนำ</span>
+          <span id="recoText"></span>
+          <button id="applyRecoBtn" class="btn btn-mini">ใช้เลย</button>
+        </div>
+
+        <label class="field">
+          <span>ประเภทกราฟ</span>
+          <select id="chartType">
+            <option value="bar">Bar — แท่ง</option>
+            <option value="line">Line — เส้น</option>
+            <option value="pie">Pie — วงกลม</option>
+            <option value="doughnut">Doughnut — โดนัท</option>
+            <option value="radar">Radar — เรดาร์</option>
+            <option value="polarArea">Polar Area</option>
+            <option value="scatter">Scatter — กระจาย</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>แกน X / ป้ายกำกับ (Label)</span>
+          <select id="labelCol"></select>
+        </label>
+
+        <label class="field">
+          <span>ค่าที่จะแสดง (Values) — เลือกได้หลายค่า</span>
+          <div id="valueCols" class="checklist"></div>
+        </label>
+
+        <label class="field">
+          <span>ชื่อกราฟ</span>
+          <input id="chartTitle" type="text" placeholder="ชื่อกราฟ" />
+        </label>
+
+        <button id="renderBtn" class="btn btn-primary">แสดงกราฟบน Dashboard</button>
+      </section>
+
+      <footer class="sidebar-foot">
+        <a href="https://github.com/nidss/rpvldd" target="_blank" rel="noopener">source บน GitHub</a>
+      </footer>
+    </aside>
+
+    <!-- Main dashboard area -->
+    <main class="dashboard">
+      <header class="dash-head">
+        <h2>Dashboard</h2>
+        <div class="dash-meta" id="dashMeta">ยังไม่มีข้อมูล — เริ่มด้วยการวางลิงก์ Google Sheet ทางซ้าย</div>
+      </header>
+
+      <div id="statusBar" class="status" hidden></div>
+
+      <div id="cards" class="cards"></div>
+
+      <div id="emptyState" class="empty">
+        <div class="empty-illus">📈</div>
+        <h3>ยังไม่มีกราฟ</h3>
+        <p>วางลิงก์ Google Sheet → เลือก Tab → ดึงข้อมูล แล้วระบบจะแนะนำกราฟที่เหมาะสมให้</p>
+        <ol class="steps">
+          <li>เปิด Google Sheet ของคุณ แล้วตั้งค่าแชร์เป็น <em>ทุกคนที่มีลิงก์</em></li>
+          <li>คัดลอกลิงก์มาวางในช่องด้านซ้าย</li>
+          <li>เลือก Tab ที่ต้องการ แล้วกด <em>ดึงข้อมูล</em></li>
+        </ol>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/sheets.js"></script>
+  <script src="assets/js/recommend.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
